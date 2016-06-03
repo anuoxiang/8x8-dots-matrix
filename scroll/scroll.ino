@@ -1,7 +1,22 @@
 #include "LedControl.h"
 
 LedControl lc = LedControl(12, 10, 11, 1);
+
 uint8_t chars[] = {
+  0x3e, 0x41, 0x41, 0x3e, 0x80,
+  0x21, 0x7f, 0x1, 0x80,
+  0x27, 0x49, 0x49, 0x33, 0x80,
+  0x22, 0x49, 0x49, 0x36, 0x80,
+  0xc, 0x14, 0x24, 0x7f, 0x4, 0x80,
+  0x79, 0x49, 0x49, 0x46, 0x80,
+  0x3e, 0x49, 0x49, 0x6, 0x80,
+  0x40, 0x47, 0x58, 0x60, 0x80,
+  0x36, 0x49, 0x49, 0x36, 0x80,
+  0x32, 0x49, 0x49, 0x3e
+};
+
+/*
+  uint8_t chars[] = {
   0x00, 0x00, 0x00, 0x80                //32：空格
   , 0x7a, 0x80                          //33:!
   , 0x60, 0x0, 0x60, 0x80               //34:"
@@ -97,7 +112,8 @@ uint8_t chars[] = {
   , 0x7e, 0x80                          //124:|
   , 0x41, 0x36, 0x8, 0x80               //125:}
   , 0x20, 0x40, 0x20, 0x40, 0x80        //126:~
-};
+  };
+*/
 
 char str[]  = "Hello world! Django.";
 
@@ -123,7 +139,7 @@ void setup() {
   Serial.println(sizeof(str) / sizeof(str[0]));
 }
 
-const byte delaytime = 150;
+const byte delaytime = 50;
 
 /* char pointer.
    point to which char is displaying.
@@ -147,7 +163,9 @@ bool IsBlank() {
 }
 
 void loop() {
-  if (chars[getChar(str[c_pointer]) + c_p_pointer] == 0x80) {
+
+  /*
+    if (chars[c_p_pointer] == 0x80) {
     if (c_pointer + 1 == (sizeof(str) / sizeof(str[0])))
     {
       if (IsBlank()) {
@@ -162,19 +180,24 @@ void loop() {
       c_p_pointer = 0;
       c_pointer++;
     }
+    }
+    else {
+  */
+  //Serial.print("run here 2.");
+  if (chars[c_p_pointer] != 0x80) {
+    disp[0] += (chars[c_p_pointer] & 0x80 ? 1 : 0);
+    disp[1] += (chars[c_p_pointer] & 0x40 ? 1 : 0);
+    disp[2] += (chars[c_p_pointer] & 0x20 ? 1 : 0);
+    disp[3] += (chars[c_p_pointer] & 0x10 ? 1 : 0);
+    disp[4] += (chars[c_p_pointer] & 0x08 ? 1 : 0);
+    disp[5] += (chars[c_p_pointer] & 0x04 ? 1 : 0);
+    disp[6] += (chars[c_p_pointer] & 0x02 ? 1 : 0);
+    disp[7] += (chars[c_p_pointer] & 0x01 ? 1 : 0);
   }
-  else {
-    //Serial.print("run here 2.");
-    disp[0] += (chars[getChar(str[c_pointer]) + c_p_pointer] & 0x80 ? 1 : 0);
-    disp[1] += (chars[getChar(str[c_pointer]) + c_p_pointer] & 0x40 ? 1 : 0);
-    disp[2] += (chars[getChar(str[c_pointer]) + c_p_pointer] & 0x20 ? 1 : 0);
-    disp[3] += (chars[getChar(str[c_pointer]) + c_p_pointer] & 0x10 ? 1 : 0);
-    disp[4] += (chars[getChar(str[c_pointer]) + c_p_pointer] & 0x08 ? 1 : 0);
-    disp[5] += (chars[getChar(str[c_pointer]) + c_p_pointer] & 0x04 ? 1 : 0);
-    disp[6] += (chars[getChar(str[c_pointer]) + c_p_pointer] & 0x02 ? 1 : 0);
-    disp[7] += (chars[getChar(str[c_pointer]) + c_p_pointer] & 0x01 ? 1 : 0);
-    c_p_pointer++;
-  }
+  c_p_pointer++;
+  //}
+
+  c_p_pointer = c_p_pointer > sizeof(chars) ? 0 : c_p_pointer;
 
   //set led to display
   for (byte i = 0; i < 8; i++)
